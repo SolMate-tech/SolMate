@@ -7,6 +7,7 @@ const { logger } = require('./utils/logger');
 const routes = require('./routes');
 const app = require('./app');
 const config = require('./config');
+const connectDB = require('./config/database');
 
 // Load environment variables
 dotenv.config();
@@ -41,11 +42,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Connect to MongoDB
+connectDB()
+  .then(() => {
+    // Start the server
+    app.listen(PORT, () => {
+      logger.info(`Server running in ${config.NODE_ENV} mode on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    logger.error(`Failed to start server: ${err.message}`);
+    process.exit(1);
+  });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {

@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
+
+// Import contexts
+import { WalletProvider as CustomWalletProvider } from './contexts/WalletContext';
+import { ChatProvider } from './contexts/ChatContext';
+import { AnalyticsProvider } from './contexts/AnalyticsContext';
+import { StrategiesProvider } from './contexts/StrategiesContext';
 
 // Import components
 import Header from './components/Header';
@@ -19,11 +25,15 @@ import NotFound from './pages/NotFound';
 
 // Import styles
 import '@solana/wallet-adapter-react-ui/styles.css';
+import './App.css';
 
 function App() {
   // Set up Solana network connection
-  const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = clusterApiUrl(network);
+  const network = process.env.REACT_APP_SOLANA_NETWORK === 'devnet' 
+    ? WalletAdapterNetwork.Devnet 
+    : WalletAdapterNetwork.Mainnet;
+  
+  const endpoint = process.env.REACT_APP_SOLANA_RPC_URL || clusterApiUrl(network);
   
   // Set up wallet adapters
   const wallets = [
@@ -35,21 +45,29 @@ function App() {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-grow container mx-auto px-4 py-8">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/strategies" element={<Strategies />} />
-                <Route path="/learn" element={<Learn />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
+          <CustomWalletProvider>
+            <ChatProvider>
+              <AnalyticsProvider>
+                <StrategiesProvider>
+                  <div className="min-h-screen flex flex-col bg-gray-900 text-white">
+                    <Header />
+                    <main className="flex-grow container mx-auto px-4 py-8">
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/chat" element={<Chat />} />
+                        <Route path="/analytics" element={<Analytics />} />
+                        <Route path="/strategies" element={<Strategies />} />
+                        <Route path="/learn" element={<Learn />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </main>
+                    <Footer />
+                  </div>
+                </StrategiesProvider>
+              </AnalyticsProvider>
+            </ChatProvider>
+          </CustomWalletProvider>
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
