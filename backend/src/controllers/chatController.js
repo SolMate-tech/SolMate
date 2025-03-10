@@ -5,120 +5,179 @@ const config = require('../config');
 /**
  * Send a message to the AI assistant
  * @route POST /api/chat/message
- * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
  */
-const sendMessage = async (req, res) => {
+const sendMessage = async (req, res, next) => {
   try {
     const { message, context = {} } = req.body;
-    const user = req.user;
+    const userId = req.user._id;
 
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+    // Validate message
+    if (!message || message.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Message is required'
+      });
     }
+
+    // Validate context object
+    if (typeof context !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Context must be an object'
+      });
+    }
+
+    // Log the incoming message
+    logger.info(`Received message from user ${userId}: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}`);
 
     // Save user message to database
     const userMessage = await Message.create({
-      user: user._id,
+      user: userId,
       role: 'user',
       message,
-      context,
+      context
     });
 
+    // Process the message and generate AI response
     // In a real implementation, this would call an AI service
-    // For now, we'll simulate a response
+    // For now, we'll simulate an AI response with a small delay for realism
+    
+    // Simple pre-defined responses for demonstration
     const responses = [
-      "I've analyzed the recent price action for SOL and noticed a bullish divergence on the 4-hour chart. This could indicate a potential reversal.",
-      "Based on on-chain data, there's been an increase in whale accumulation over the past 48 hours. This is often a positive signal.",
-      "Looking at the Jupiter liquidity pools, I can see that SOL/USDC has deepened by 15% since yesterday, which should reduce slippage for larger trades.",
-      "I've detected a new token launch that matches your risk profile. Would you like me to analyze its contract for potential security issues?",
-      "The strategy you described would have yielded approximately 12.3% over the past month, outperforming a simple buy-and-hold approach by 3.7%."
+      "I've analyzed this token and found its volatility to be relatively low compared to market averages.",
+      "Based on recent market movements, I'd suggest monitoring this position closely.",
+      "The on-chain data for this token shows increasing adoption and utility.",
+      "Looking at historical patterns, this token has shown resilience during market downturns.",
+      "I've detected several whale movements for this token in the past 24 hours.",
+      "The liquidity for this token is distributed across multiple DEXs, which is generally positive for stability.",
+      "There appears to be growing social sentiment around this project.",
+      "Risk assessment shows a moderate risk profile for this token."
     ];
     
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    // Select a random response
+    const aiResponse = responses[Math.floor(Math.random() * responses.length)];
     
+    // Add a small processing delay (50-300ms) for realism
+    await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 250));
+
     // Save AI response to database
-    const aiMessage = await Message.create({
-      user: user._id,
+    const assistantMessage = await Message.create({
+      user: userId,
       role: 'assistant',
-      message: randomResponse,
-      context,
+      message: aiResponse,
+      context
     });
 
-    res.json({
-      id: aiMessage._id,
-      message: aiMessage.message,
-      timestamp: aiMessage.timestamp,
+    // Return both messages
+    res.status(201).json({
+      success: true,
+      data: {
+        userMessage: userMessage,
+        assistantMessage: assistantMessage
+      }
     });
   } catch (error) {
-    logger.error(`Send message error: ${error.message}`);
-    res.status(500).json({ error: 'Server error while processing message' });
+    logger.error(`Error in sendMessage: ${error.message}`, { stack: error.stack });
+    next(error);
   }
 };
 
 /**
- * Get chat history
+ * Get chat history for a user
  * @route GET /api/chat/history
- * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
  */
-const getHistory = async (req, res) => {
+const getHistory = async (req, res, next) => {
   try {
-    const user = req.user;
+    const userId = req.user._id;
+    
+    // Optional query parameters for pagination
     const limit = parseInt(req.query.limit) || 50;
+    const skip = parseInt(req.query.skip) || 0;
     
-    // Get messages for this user, sorted by timestamp
-    const messages = await Message.find({ user: user._id })
-      .sort({ timestamp: -1 })
+    // Validate pagination parameters
+    if (limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        error: 'Limit must be between 1 and 100'
+      });
+    }
+    
+    if (skip < 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Skip cannot be negative'
+      });
+    }
+
+    // Get messages from database with pagination
+    const messages = await Message.find({ user: userId })
+      .sort({ timestamp: 1 })
+      .skip(skip)
       .limit(limit)
-      .lean();
+      .lean()
+      .exec();
     
-    // Reverse to get chronological order
-    const chronologicalMessages = messages.reverse().map(msg => ({
-      id: msg._id,
-      role: msg.role,
-      message: msg.message,
-      timestamp: msg.timestamp,
-    }));
+    // Get total count for pagination info
+    const total = await Message.countDocuments({ user: userId });
 
     res.json({
-      messages: chronologicalMessages,
+      success: true,
+      data: {
+        messages,
+        pagination: {
+          total,
+          limit,
+          skip,
+          hasMore: total > skip + limit
+        }
+      }
     });
   } catch (error) {
-    logger.error(`Get chat history error: ${error.message}`);
-    res.status(500).json({ error: 'Server error while fetching chat history' });
+    logger.error(`Error in getHistory: ${error.message}`, { stack: error.stack });
+    next(error);
   }
 };
 
 /**
- * Clear chat history
+ * Clear chat history for a user
  * @route DELETE /api/chat/history
- * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
  */
-const clearHistory = async (req, res) => {
+const clearHistory = async (req, res, next) => {
   try {
-    const user = req.user;
-    
+    const userId = req.user._id;
+
     // Delete all messages for this user
-    await Message.deleteMany({ user: user._id });
-    
-    // Add a system message indicating history was cleared
+    const result = await Message.deleteMany({ user: userId });
+
+    // Add a system message indicating that history was cleared
     await Message.create({
-      user: user._id,
-      role: 'assistant',
-      message: 'Chat history cleared. How can I help you today?',
+      user: userId,
+      role: 'system',
+      message: 'Chat history has been cleared.'
     });
 
     res.json({
       success: true,
       message: 'Chat history cleared successfully',
+      data: { deletedCount: result.deletedCount }
     });
   } catch (error) {
-    logger.error(`Clear chat history error: ${error.message}`);
-    res.status(500).json({ error: 'Server error while clearing chat history' });
+    logger.error(`Error in clearHistory: ${error.message}`, { stack: error.stack });
+    next(error);
   }
 };
 
 module.exports = {
   sendMessage,
   getHistory,
-  clearHistory,
+  clearHistory
 }; 
