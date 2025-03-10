@@ -1,0 +1,150 @@
+.llm-provider-selector {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.llm-provider-selector h3 {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  color: var(--color-primary);
+}
+
+.llm-provider-selector h4 {
+  font-size: 1rem;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: var(--color-text-light);
+}
+
+.llm-provider-selector .form-group {
+  margin-bottom: 16px;
+}
+
+.llm-provider-selector label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.llm-provider-selector select,
+.llm-provider-selector input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.llm-provider-selector select:focus,
+.llm-provider-selector input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.llm-provider-selector select:disabled,
+.llm-provider-selector input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.llm-provider-selector .api-key-container {
+  display: flex;
+  position: relative;
+}
+
+.llm-provider-selector .api-key-container input {
+  padding-right: 80px;
+}
+
+.llm-provider-selector .api-key-container button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  padding: 0 10px;
+  background-color: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.llm-provider-selector .api-key-container button:hover {
+  color: var(--color-secondary);
+}
+
+.llm-provider-selector .help-text {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  color: var(--color-text-light);
+}
+
+.llm-provider-selector .current-settings {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.llm-provider-selector .current-settings p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.llm-provider-selector .actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.llm-provider-selector .apply-button {
+  padding: 8px 16px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.llm-provider-selector .apply-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.llm-provider-selector .apply-button:disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.llm-provider-selector .message {
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.llm-provider-selector .message.success {
+  background-color: rgba(0, 128, 0, 0.1);
+  color: #00c853;
+}
+
+.llm-provider-selector .message.error {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #ff5252;
+}
+
+.llm-provider-selector .loading {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--color-text-light);
+  font-style: italic;
+  font-size: 0.9rem;
+} 

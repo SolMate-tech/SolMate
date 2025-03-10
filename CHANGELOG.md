@@ -44,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved API response formats with consistent structure
 - Request validation to prevent invalid inputs
 - Extended API utility functions for frontend development
+- Natural language processing service for intent detection
+- Entity extraction for contextual understanding
+- Context-aware conversation management
+- Solana blockchain integration service
+- Token risk analysis functionality
 
 ### Improved
 - Project structure with clear organization of components
@@ -54,12 +59,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database queries for better performance
 - Logging with detailed context information
 - JWT token extraction and verification
+- Chat interface with visual response elements
+- AI responses with contextual awareness
 
 ### Fixed
 - Environment configuration handling
 - Authentication flow for wallet connections
 - Response formatting for API endpoints
 - Error messaging in API responses
+- Message persistence and retrieval
+- Chat context management
 
 ## [1.0.1] - 2024-02-15
 

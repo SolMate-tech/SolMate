@@ -11,6 +11,7 @@ import { WalletProvider as CustomWalletProvider } from './contexts/WalletContext
 import { ChatProvider } from './contexts/ChatContext';
 import { AnalyticsProvider } from './contexts/AnalyticsContext';
 import { StrategiesProvider } from './contexts/StrategiesContext';
+import { RiskProvider } from './contexts/RiskContext';
 
 // Import components
 import Header from './components/Header';
@@ -19,6 +20,7 @@ import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
 import Analytics from './pages/Analytics';
 import Strategies from './pages/Strategies';
+import RiskAnalysis from './pages/RiskAnalysis';
 import Learn from './pages/Learn';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
@@ -49,21 +51,24 @@ function App() {
             <ChatProvider>
               <AnalyticsProvider>
                 <StrategiesProvider>
-                  <div className="min-h-screen flex flex-col bg-gray-900 text-white">
-                    <Header />
-                    <main className="flex-grow container mx-auto px-4 py-8">
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/chat" element={<Chat />} />
-                        <Route path="/analytics" element={<Analytics />} />
-                        <Route path="/strategies" element={<Strategies />} />
-                        <Route path="/learn" element={<Learn />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                    <Footer />
-                  </div>
+                  <RiskProvider>
+                    <div className="min-h-screen flex flex-col bg-gray-900 text-white">
+                      <Header />
+                      <main className="flex-grow container mx-auto px-4 py-8">
+                        <Routes>
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/chat" element={<Chat />} />
+                          <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/strategies" element={<Strategies />} />
+                          <Route path="/risk" element={<RiskAnalysis />} />
+                          <Route path="/learn" element={<Learn />} />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                      <Footer />
+                    </div>
+                  </RiskProvider>
                 </StrategiesProvider>
               </AnalyticsProvider>
             </ChatProvider>

@@ -4,8 +4,8 @@
   <img src="assets/logos/solmate_logo.svg" alt="SolMate Logo" width="250">
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-  [![Website](https://img.shields.io/badge/Website-bodydfi.com-blue)](https://bodydfi.com)
-  [![Twitter](https://img.shields.io/badge/Twitter-@bodydfi-blue)](https://x.com/bodydfi)
+  [![Website](https://img.shields.io/badge/Website-sol--mate.online-blue)](https://sol-mate.online)
+  [![GitHub](https://img.shields.io/badge/GitHub-SolMate--tech-blue)](https://github.com/SolMate-tech/SolMate)
 </div>
 
 ## Overview
@@ -129,32 +129,62 @@ cp .env.example .env
 npm start
 ```
 
-## Development Roadmap
+## Technology Roadmap
 
-- **Phase 1: Foundation** (Months 1-3)
-  - Establish Solana integration infrastructure
-  - Develop basic risk scoring system
-  - Implement conversational language processing
-  - Release MVP with core analytics
+### Phase 1: Foundation (Current)
+- ✅ Multi-provider LLM integration with secure API key management
+- ✅ Enhanced authentication system with wallet verification
+- ✅ Chat functionality with history management
+- ✅ Response caching for improved performance
+- ✅ Model comparison tools for developers
 
-- **Phase 2: Analytics Evolution** (Months 4-6)
-  - Launch comprehensive risk scoring
-  - Implement initial predictive analytics
-  - Build educational overlay system
-  - Deploy multi-modal input processing
+### Phase 2: Advanced Features (1-3 months)
+- 🚀 **Streaming Responses**: Implement real-time streaming for AI responses using Server-Sent Events
+  - Typewriter-style message display
+  - Chunked processing for improved perceived performance
+  - Connection resilience and error handling
+  
+- 🚀 **Cost Monitoring & Management**:
+  - Usage tracking at user and system levels
+  - Quota management for different user tiers
+  - Cost optimization strategies
+  
+- 🚀 **Basic Multimodal Support**:
+  - Chart and image processing capabilities
+  - Screenshot analysis for technical patterns
+  - Visual response generation
 
-- **Phase 3: Trading Enhancement** (Months 7-9)
-  - Release MEV protection system
-  - Develop strategy builder v1
-  - Implement voice command system
-  - Launch social trading features
+### Phase 3: Ecosystem Integration (3-6 months)
+- 🔮 **Domain-Specific Model Training**:
+  - Fine-tuning models for Solana-specific knowledge
+  - Creating specialized financial analysis capabilities
+  - Developing trading strategy recognition
 
-- **Phase 4: Ecosystem Expansion** (Months 10-12)
-  - Deploy local execution option
-  - Release open source SolMate SDK/API components
-  - Launch token and governance system
-  - Implement advanced strategy execution
-  - Establish developer community program
+- 🔮 **Agent-Based Workflows**:
+  - Autonomous trading agents with user-defined parameters
+  - Multi-agent systems for complex analysis tasks
+  - Human-in-the-loop oversight and guidance
+
+- 🔮 **Advanced Privacy Features**:
+  - Local model execution options
+  - End-to-end encrypted communications
+  - Privacy-preserving computation techniques
+
+### Phase 4: Expansion (6-12 months)
+- 🔮 **Enhanced Multimodal Capabilities**:
+  - Audio input and output
+  - Rich visualization generation
+  - Interactive chart creation
+
+- 🔮 **Web3 Integration Expansion**:
+  - Cross-chain analysis and interaction
+  - DeFi protocol automation
+  - NFT market intelligence
+
+- 🔮 **Community Learning Systems**:
+  - Collaborative learning environments
+  - Knowledge-sharing platforms
+  - Community-validated strategies
 
 ## Current Status
 
@@ -174,6 +204,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-- Website: [bodydfi.com](https://bodydfi.com)
-- Twitter: [@bodydfi](https://x.com/bodydfi)
+- Website: [sol-mate.online](https://sol-mate.online)
 - GitHub: [SolMate-tech/SolMate](https://github.com/SolMate-tech/SolMate)

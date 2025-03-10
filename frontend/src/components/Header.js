@@ -14,6 +14,7 @@ const Header = () => {
     { path: '/', label: 'Dashboard' },
     { path: '/chat', label: 'AI Chat' },
     { path: '/analytics', label: 'Analytics' },
+    { path: '/risk', label: 'Risk Analysis' },
     { path: '/strategies', label: 'Strategies' },
     { path: '/learn', label: 'Learn' },
   ];

@@ -1,34 +1,141 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useChatContext } from '../contexts/ChatContext';
 import { useWalletContext } from '../contexts/WalletContext';
+import { useChatContext } from '../contexts/ChatContext';
+import StreamingChatMessage from '../components/StreamingChatMessage';
 
 const Chat = () => {
   const { connected } = useWallet();
   const { isAuthenticated } = useWalletContext();
-  const { messages, isLoading, error, sendMessage, clearChat } = useChatContext();
+  const { 
+    messages, 
+    loading, 
+    error, 
+    sendMessage, 
+    sendStreamingMessage,
+    clearHistory, 
+    isStreaming,
+    streamingMessageId,
+    handleStreamComplete
+  } = useChatContext();
+  
   const [input, setInput] = useState('');
+  const [useStreaming, setUseStreaming] = useState(true);
   const messagesEndRef = useRef(null);
-
-  // Auto-scroll to bottom of messages
+  
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
-
-  const handleSendMessage = async (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
     
-    await sendMessage(input);
+    const message = input.trim();
     setInput('');
+    
+    if (useStreaming) {
+      await sendStreamingMessage(message);
+    } else {
+      await sendMessage(message);
+    }
   };
-
-  const handleClearChat = () => {
-    clearChat();
+  
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
   };
-
+  
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      handleSubmit(e);
+    }
+  };
+  
+  const handleClearHistory = async () => {
+    if (window.confirm('Are you sure you want to clear your chat history? This action cannot be undone.')) {
+      await clearHistory();
+    }
+  };
+  
+  // Function to render message content with any visualizations
+  const renderMessageContent = (message) => {
+    const { role, message: content, data, visualType } = message;
+    
+    // Basic message content
+    let renderedContent = <p className="message-text">{content}</p>;
+    
+    // Add visualizations based on visualType
+    if (role === 'assistant' && visualType) {
+      switch (visualType) {
+        case 'risk_summary':
+          if (data && data.riskScore !== undefined) {
+            renderedContent = (
+              <>
+                {renderedContent}
+                <div className="visualization risk-summary">
+                  <div className="risk-meter">
+                    <div 
+                      className="risk-indicator" 
+                      style={{ 
+                        width: `${data.riskScore}%`,
+                        backgroundColor: getRiskColor(data.riskScore)
+                      }}
+                    />
+                  </div>
+                  <div className="risk-label">
+                    Risk Score: {data.riskScore}/100 ({data.riskCategory})
+                  </div>
+                </div>
+              </>
+            );
+          }
+          break;
+          
+        case 'price_info':
+          if (data && data.price) {
+            renderedContent = (
+              <>
+                {renderedContent}
+                <div className="visualization price-info">
+                  <div className="price-value">${data.price}</div>
+                  <div className={`price-change ${parseFloat(data.change24h) >= 0 ? 'positive' : 'negative'}`}>
+                    {parseFloat(data.change24h) >= 0 ? '↑' : '↓'} {Math.abs(data.change24h)}%
+                  </div>
+                </div>
+              </>
+            );
+          }
+          break;
+          
+        case 'market_overview':
+        case 'token_info':
+        case 'transaction_info':
+        case 'strategy_outline':
+          // Render these visualization types as needed
+          break;
+          
+        default:
+          break;
+      }
+    }
+    
+    return renderedContent;
+  };
+  
+  // Helper function to get color based on risk score
+  const getRiskColor = (score) => {
+    if (score < 20) return '#4CAF50'; // green
+    if (score < 40) return '#8BC34A'; // light green
+    if (score < 60) return '#FFC107'; // amber
+    if (score < 80) return '#FF9800'; // orange
+    return '#F44336'; // red
+  };
+  
   if (!connected) {
     return (
       <div className="text-center py-20">
@@ -44,86 +151,78 @@ const Chat = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)]">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">AI Chat Assistant</h1>
-          <p className="text-gray-300">
-            Ask me anything about Solana trading, token analysis, or strategy building.
-          </p>
+    <div className="chat-page">
+      <div className="chat-header">
+        <h1>Chat with SolMate AI</h1>
+        <div className="chat-actions">
+          <button
+            className="clear-history-button"
+            onClick={handleClearHistory}
+            disabled={loading || messages.length <= 1}
+          >
+            Clear History
+          </button>
+          <label className="streaming-toggle">
+            <input
+              type="checkbox"
+              checked={useStreaming}
+              onChange={() => setUseStreaming(!useStreaming)}
+              disabled={loading}
+            />
+            <span className="toggle-label">Streaming Mode</span>
+          </label>
         </div>
-        <button
-          onClick={handleClearChat}
-          className="bg-gray-700 hover:bg-gray-600 text-white rounded-lg px-4 py-2 text-sm"
-        >
-          Clear Chat
-        </button>
       </div>
       
-      <div className="flex-grow bg-gray-800 rounded-lg p-4 overflow-y-auto mb-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
+      <div className="chat-container">
+        <div className="messages-container">
+          {messages.map(message => (
+            <StreamingChatMessage
               key={message.id}
-              className={`flex ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-3/4 rounded-lg px-4 py-2 ${
-                  message.role === 'user'
-                    ? 'bg-purple-600 text-white'
-                    : message.role === 'system'
-                    ? 'bg-red-600 text-white'
-                    : 'bg-gray-700 text-white'
-                }`}
-              >
-                {message.message || message.content}
-              </div>
-            </div>
+              message={message}
+              isStreaming={isStreaming && message.id === streamingMessageId}
+              onStreamComplete={handleStreamComplete}
+            />
           ))}
           
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-700 text-white rounded-lg px-4 py-2">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                </div>
+          {loading && !isStreaming && (
+            <div className="loading-indicator">
+              <div className="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
               </div>
             </div>
           )}
           
           {error && (
-            <div className="flex justify-center">
-              <div className="bg-red-600 text-white rounded-lg px-4 py-2 text-sm">
-                {error}
-              </div>
+            <div className="error-message">
+              <p>{error}</p>
             </div>
           )}
           
           <div ref={messagesEndRef} />
         </div>
+        
+        <form className="chat-input-form" onSubmit={handleSubmit}>
+          <textarea
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message here..."
+            disabled={loading}
+            rows={1}
+            className="chat-input"
+          />
+          <button 
+            type="submit" 
+            className="send-button"
+            disabled={!input.trim() || loading}
+          >
+            Send
+          </button>
+        </form>
       </div>
-      
-      <form onSubmit={handleSendMessage} className="flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about Solana tokens, trading strategies, or market analysis..."
-          className="flex-grow bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          disabled={isLoading}
-        />
-        <button
-          type="submit"
-          className="bg-gradient-to-r from-purple-600 to-green-400 hover:from-purple-700 hover:to-green-500 text-white rounded-lg px-4 py-2 font-medium"
-          disabled={isLoading || !input.trim()}
-        >
-          Send
-        </button>
-      </form>
     </div>
   );
 };

@@ -68,7 +68,7 @@ We are in the process of establishing a bug bounty program. Details will be anno
 Security updates will be announced through:
 
 - GitHub releases
-- Our official Twitter account: [@bodydfi](https://x.com/bodydfi)
+- Our official website: [sol-mate.online](https://sol-mate.online)
 - Email notifications to registered users (for critical updates)
 
 ## Security Best Practices for Users

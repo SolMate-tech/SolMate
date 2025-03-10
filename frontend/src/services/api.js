@@ -80,9 +80,16 @@ export const authAPI = {
 
 // Chat API
 export const chatAPI = {
-  sendMessage: (message, context) => api.post('/chat/message', { message, context }),
-  getHistory: () => api.get('/chat/history'),
-  clearHistory: () => api.delete('/chat/history'),
+  sendMessage: (message, context, llmOptions) => 
+    api.post('/chat/message', { message, context, llmOptions }),
+  getHistory: (skip, limit) => 
+    api.get('/chat/history', { params: { skip, limit }}),
+  clearHistory: () => 
+    api.delete('/chat/history'),
+  getLLMProviders: () => 
+    api.get('/chat/llm-providers'),
+  setPreferredLLMProvider: (provider, model) => 
+    api.put('/chat/llm-provider', { provider, model }),
 };
 
 // Analytics API
@@ -114,6 +121,18 @@ export const tokensAPI = {
   searchTokens: (query) => api.get('/tokens/search', { params: { query } }),
   getTokenPrice: (address) => api.get(`/tokens/price/${address}`),
   getTokenMetadata: (address) => api.get(`/tokens/metadata/${address}`),
+};
+
+// Risk API
+export const riskAPI = {
+  analyzeToken: (tokenAddress) => 
+    api.post('/risk/token', { tokenAddress }),
+  getRiskFactors: () => 
+    api.get('/risk/factors'),
+  compareTokens: (tokenAddresses) => 
+    api.post('/risk/compare', { tokenAddresses }),
+  getHistoricalRisk: (tokenAddress, days = 30) => 
+    api.get(`/risk/history/${tokenAddress}`, { params: { days } }),
 };
 
 /**

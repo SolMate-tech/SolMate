@@ -120,6 +120,5 @@ SolMate is being developed by a team of experienced developers, designers, and S
 
 ## Contact
 
-- Website: [bodydfi.com](https://bodydfi.com)
-- Twitter: [@bodydfi](https://x.com/bodydfi)
+- Website: [sol-mate.online](https://sol-mate.online)
 - GitHub: [SolMate-tech/SolMate](https://github.com/SolMate-tech/SolMate)

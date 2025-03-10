@@ -1,6 +1,8 @@
 const Message = require('../models/Message');
 const logger = require('../utils/logger');
 const config = require('../config');
+const responseManagerService = require('../services/responseManagerService');
+const User = require('../models/User');
 
 /**
  * Send a message to the AI assistant
@@ -11,7 +13,7 @@ const config = require('../config');
  */
 const sendMessage = async (req, res, next) => {
   try {
-    const { message, context = {} } = req.body;
+    const { message, context = {}, llmOptions = {} } = req.body;
     const userId = req.user._id;
 
     // Validate message
@@ -30,7 +32,6 @@ const sendMessage = async (req, res, next) => {
       });
     }
 
-    // Log the incoming message
     logger.info(`Received message from user ${userId}: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}`);
 
     // Save user message to database
@@ -41,42 +42,68 @@ const sendMessage = async (req, res, next) => {
       context
     });
 
-    // Process the message and generate AI response
-    // In a real implementation, this would call an AI service
-    // For now, we'll simulate an AI response with a small delay for realism
+    // Get recent conversation history to provide context to the LLM
+    const recentMessages = await Message.find({ user: userId })
+      .sort({ timestamp: -1 })
+      .limit(10)
+      .lean();
     
-    // Simple pre-defined responses for demonstration
-    const responses = [
-      "I've analyzed this token and found its volatility to be relatively low compared to market averages.",
-      "Based on recent market movements, I'd suggest monitoring this position closely.",
-      "The on-chain data for this token shows increasing adoption and utility.",
-      "Looking at historical patterns, this token has shown resilience during market downturns.",
-      "I've detected several whale movements for this token in the past 24 hours.",
-      "The liquidity for this token is distributed across multiple DEXs, which is generally positive for stability.",
-      "There appears to be growing social sentiment around this project.",
-      "Risk assessment shows a moderate risk profile for this token."
-    ];
+    // Format conversation history for the LLM
+    const conversationHistory = recentMessages
+      .reverse()
+      .map(msg => ({
+        role: msg.role,
+        content: msg.message
+      }));
     
-    // Select a random response
-    const aiResponse = responses[Math.floor(Math.random() * responses.length)];
+    // Set up context with conversation history
+    const enrichedContext = {
+      ...context,
+      conversationHistory
+    };
     
-    // Add a small processing delay (50-300ms) for realism
-    await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 250));
+    // Process message with response manager
+    const aiResponse = await responseManagerService.processMessage(
+      message, 
+      enrichedContext, 
+      llmOptions
+    );
 
-    // Save AI response to database
+    // Save AI response to database with the updated context
     const assistantMessage = await Message.create({
       user: userId,
       role: 'assistant',
-      message: aiResponse,
-      context
+      message: aiResponse.message,
+      context: {
+        ...aiResponse.context,
+        provider: aiResponse.provider,
+        model: aiResponse.model,
+        data: aiResponse.data,
+        visualType: aiResponse.visualType,
+        intent: aiResponse.intent
+      }
     });
 
-    // Return both messages
+    // Return both messages with enhanced data
     res.status(201).json({
       success: true,
       data: {
-        userMessage: userMessage,
-        assistantMessage: assistantMessage
+        userMessage: {
+          id: userMessage._id,
+          message: userMessage.message,
+          timestamp: userMessage.timestamp
+        },
+        assistantMessage: {
+          id: assistantMessage._id,
+          message: assistantMessage.message,
+          timestamp: assistantMessage.timestamp,
+          provider: aiResponse.provider,
+          model: aiResponse.model,
+          data: aiResponse.data,
+          visualType: aiResponse.visualType,
+          intent: aiResponse.intent
+        },
+        context: aiResponse.context
       }
     });
   } catch (error) {
@@ -126,10 +153,41 @@ const getHistory = async (req, res, next) => {
     // Get total count for pagination info
     const total = await Message.countDocuments({ user: userId });
 
+    // Process messages for response
+    const formattedMessages = messages.map(msg => {
+      const formattedMsg = {
+        id: msg._id,
+        role: msg.role,
+        message: msg.message,
+        timestamp: msg.timestamp
+      };
+      
+      // Include additional data for assistant messages
+      if (msg.role === 'assistant' && msg.context) {
+        if (msg.context.data) {
+          formattedMsg.data = msg.context.data;
+        }
+        if (msg.context.visualType) {
+          formattedMsg.visualType = msg.context.visualType;
+        }
+        if (msg.context.provider) {
+          formattedMsg.provider = msg.context.provider;
+        }
+        if (msg.context.model) {
+          formattedMsg.model = msg.context.model;
+        }
+        if (msg.context.intent) {
+          formattedMsg.intent = msg.context.intent;
+        }
+      }
+      
+      return formattedMsg;
+    });
+
     res.json({
       success: true,
       data: {
-        messages,
+        messages: formattedMessages,
         pagination: {
           total,
           limit,
@@ -176,8 +234,100 @@ const clearHistory = async (req, res, next) => {
   }
 };
 
+/**
+ * Get available LLM providers and models
+ * @route GET /api/chat/llm-providers
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+const getLLMProviders = async (req, res, next) => {
+  try {
+    const providers = responseManagerService.getAvailableProviders();
+    
+    // For each available provider, get its models
+    const providersWithModels = {};
+    Object.entries(providers).forEach(([key, provider]) => {
+      if (provider.available) {
+        providersWithModels[key] = {
+          ...provider,
+          models: responseManagerService.getAvailableModels(provider.id)
+        };
+      }
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        providers: providersWithModels
+      }
+    });
+  } catch (error) {
+    logger.error(`Error in getLLMProviders: ${error.message}`, { stack: error.stack });
+    next(error);
+  }
+};
+
+/**
+ * Set preferred LLM provider for user
+ * @route PUT /api/chat/llm-provider
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+const setPreferredLLMProvider = async (req, res, next) => {
+  try {
+    const { provider, model } = req.body;
+    const userId = req.user._id;
+    
+    // Validate provider
+    const providers = responseManagerService.getAvailableProviders();
+    const providerIds = Object.values(providers).map(p => p.id);
+    
+    if (!provider || !providerIds.includes(provider)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid provider'
+      });
+    }
+    
+    // If model is specified, validate it
+    if (model) {
+      const models = responseManagerService.getAvailableModels(provider);
+      if (!models.includes(model)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid model for the selected provider'
+        });
+      }
+    }
+    
+    // Update user's profile with preferred provider and model
+    await User.findByIdAndUpdate(userId, {
+      $set: {
+        'preferences.llmProvider': provider,
+        ...(model && { 'preferences.llmModel': model }),
+      }
+    });
+    
+    res.json({
+      success: true,
+      message: 'Preferred LLM provider updated successfully',
+      data: {
+        provider,
+        model
+      }
+    });
+  } catch (error) {
+    logger.error(`Error in setPreferredLLMProvider: ${error.message}`, { stack: error.stack });
+    next(error);
+  }
+};
+
 module.exports = {
   sendMessage,
   getHistory,
-  clearHistory
+  clearHistory,
+  getLLMProviders,
+  setPreferredLLMProvider
 }; 
