@@ -1,6 +1,6 @@
 {
   "name": "solmate",
-  "version": "0.1.0",
+  "version": "1.0.2",
   "description": "Solana-Focused AI Trading Assistant",
   "private": true,
   "workspaces": [

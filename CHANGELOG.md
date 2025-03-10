@@ -32,5 +32,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic project documentation
 - Development environment configuration
 
+## [1.0.2] - 2024-03-10
+
+### Added
+- Setup script for easier project installation
+- Startup script for convenient service launching
+- Comprehensive authentication controller with wallet verification
+- Chat functionality with AI assistant integration
+- User profile management features
+
+### Improved
+- Project structure with clear organization of components
+- Documentation with detailed installation instructions
+- Code quality with consistent patterns and error handling
+- Security with middleware protection for sensitive routes
+
+### Fixed
+- Environment configuration handling
+- Authentication flow for wallet connections
+- Response formatting for API endpoints
+
+## [1.0.1] - 2024-02-15
+
+### Added
+- Initial project structure
+- Basic documentation
+
+## [1.0.0] - 2024-01-30
+
+### Added
+- Project initialization
+
 [Unreleased]: https://github.com/SolMate-tech/SolMate/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/SolMate-tech/SolMate/releases/tag/v0.1.0
