@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background (transparent) -->
+  <rect width="200" height="200" fill="transparent" />
+  
+  <!-- Circular background -->
+  <circle cx="100" cy="100" r="80" fill="#212730" />
+  
+  <!-- Trading chart line that forms half of heart on left side -->
+  <path d="M40 130 L60 110 L75 120 L90 90 L100 100" 
+	    fill="none" 
+	    stroke="#14F195" 
+	    stroke-width="5"
+	    stroke-linecap="round"
+	    stroke-linejoin="round" />
+  
+  <!-- Trading chart line that forms half of heart on right side -->
+  <path d="M100 100 L110 90 L125 120 L140 110 L160 130" 
+	    fill="none" 
+	    stroke="#9945FF" 
+	    stroke-width="5"
+	    stroke-linecap="round"
+	    stroke-linejoin="round" />
+  
+  <!-- Heart shape where the lines meet -->
+  <path d="M100 100 L90 90 C80 80, 70 80, 65 90 C60 100, 70 110, 100 130 C130 110, 140 100, 135 90 C130 80, 120 80, 110 90 L100 100Z"
+	    fill="url(#solanaGradient)"
+	    opacity="0.6" />
+  
+  <!-- Solana logo element at the bottom -->
+  <rect x="85" y="140" width="30" height="5" fill="#9945FF" rx="2" ry="2" />
+  <rect x="85" y="150" width="30" height="5" fill="#14F195" rx="2" ry="2" />
+  
+  <!-- Solana gradient definition -->
+  <defs>
+	<linearGradient id="solanaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+	  <stop offset="0%" stop-color="#9945FF" />
+	  <stop offset="100%" stop-color="#14F195" />
+	</linearGradient>
+  </defs>
+</svg> 
