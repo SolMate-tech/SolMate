@@ -21,7 +21,7 @@ Key differentiation points:
 - **Real-time streaming responses** with typewriter effect UI
 
 <div align="center">
-  <img src="https://i.imgur.com/cTJpnX0.png" alt="Solmate Dashboard" width="800">
+  <img src="assets/logos/solmate_logo.svg" alt="Solmate Dashboard" width="800">
 </div>
 
 ## 🛠️ Tech Stack
