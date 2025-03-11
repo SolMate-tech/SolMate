@@ -153,7 +153,7 @@ const Chat = () => {
   return (
     <div className="chat-page">
       <div className="chat-header">
-        <h1>Chat with SolMate AI</h1>
+        <h1>Chat with Solmate AI</h1>
         <div className="chat-actions">
           <button
             className="clear-history-button"

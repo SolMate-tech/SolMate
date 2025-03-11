@@ -19,14 +19,14 @@ const LLMProviderSelector = () => {
   const [message, setMessage] = useState('');
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   
-  // 加载LLM提供商列表（如果尚未加载）
+  // Load LLM providers list (if not already loaded)
   useEffect(() => {
     if (llmProviders.length === 0 && !llmProvidersLoading) {
       fetchLlmProviders();
     }
   }, [llmProviders, llmProvidersLoading, fetchLlmProviders]);
   
-  // 设置初始值
+  // Set initial values
   useEffect(() => {
     if (preferredProvider) {
       setSelectedProvider(preferredProvider);
@@ -36,14 +36,14 @@ const LLMProviderSelector = () => {
     }
   }, [preferredProvider, preferredModel]);
   
-  // 当选择的提供商变化时，更新可用的模型列表
+  // When selected provider changes, update available models list
   useEffect(() => {
     if (selectedProvider && llmProviders.length > 0) {
       const provider = llmProviders.find(p => p.id === selectedProvider);
       if (provider && provider.models) {
         setAvailableModels(provider.models);
         
-        // 如果当前选择的模型不在新提供商的模型列表中，则选择第一个可用的模型
+        // If current selected model is not in the new provider's models list, select the first available model
         if (provider.models.length > 0 && !provider.models.includes(selectedModel)) {
           setSelectedModel(provider.models[0]);
         }
@@ -51,25 +51,25 @@ const LLMProviderSelector = () => {
     }
   }, [selectedProvider, llmProviders, selectedModel]);
   
-  // 处理提供商变化
+  // Handle provider change
   const handleProviderChange = (e) => {
     setSelectedProvider(e.target.value);
   };
   
-  // 处理模型变化
+  // Handle model change
   const handleModelChange = (e) => {
     setSelectedModel(e.target.value);
   };
   
-  // 处理API密钥变化
+  // Handle API key change
   const handleApiKeyChange = (e) => {
     setApiKey(e.target.value);
   };
   
-  // 应用变更
+  // Apply changes
   const handleApply = async () => {
     if (!selectedProvider || !selectedModel) {
-      setMessage('请选择提供商和模型');
+      setMessage('Please select a provider and model');
       return;
     }
     
@@ -80,37 +80,37 @@ const LLMProviderSelector = () => {
       const success = await setPreferredLLMProvider(selectedProvider, selectedModel, apiKey);
       
       if (success) {
-        setMessage('设置已更新');
-        setApiKey(''); // 清除输入框中的API密钥
+        setMessage('Settings updated');
+        setApiKey(''); // Clear API key input
         setApiKeyVisible(false);
       } else {
-        setMessage('更新设置失败');
+        setMessage('Failed to update settings');
       }
     } catch (error) {
-      setMessage(`错误: ${error.message}`);
+      setMessage(`Error: ${error.message}`);
     } finally {
       setUpdating(false);
     }
   };
   
-  // 切换API密钥可见性
+  // Toggle API key visibility
   const toggleApiKeyVisibility = () => {
     setApiKeyVisible(!apiKeyVisible);
   };
   
   return (
     <div className="llm-provider-selector">
-      <h3>选择AI模型</h3>
+      <h3>Select AI Model</h3>
       
       <div className="form-group">
-        <label htmlFor="provider-select">提供商:</label>
+        <label htmlFor="provider-select">Provider:</label>
         <select
           id="provider-select"
           value={selectedProvider}
           onChange={handleProviderChange}
           disabled={llmProvidersLoading || updating}
         >
-          <option value="">-- 选择提供商 --</option>
+          <option value="">-- Select Provider --</option>
           {llmProviders.map(provider => (
             <option key={provider.id} value={provider.id}>
               {provider.name}
@@ -120,14 +120,14 @@ const LLMProviderSelector = () => {
       </div>
       
       <div className="form-group">
-        <label htmlFor="model-select">模型:</label>
+        <label htmlFor="model-select">Model:</label>
         <select
           id="model-select"
           value={selectedModel}
           onChange={handleModelChange}
           disabled={!selectedProvider || llmProvidersLoading || updating}
         >
-          <option value="">-- 选择模型 --</option>
+          <option value="">-- Select Model --</option>
           {availableModels.map(model => (
             <option key={model} value={model}>
               {model}
@@ -137,14 +137,14 @@ const LLMProviderSelector = () => {
       </div>
       
       <div className="form-group api-key-input">
-        <label htmlFor="api-key-input">API密钥 (可选):</label>
+        <label htmlFor="api-key-input">API Key (Optional):</label>
         <div className="api-key-container">
           <input
             id="api-key-input"
             type={apiKeyVisible ? "text" : "password"}
             value={apiKey}
             onChange={handleApiKeyChange}
-            placeholder="输入您的API密钥（如需自定义）"
+            placeholder="Enter your API key (if customizing)"
             disabled={updating}
           />
           <button
@@ -152,21 +152,21 @@ const LLMProviderSelector = () => {
             className="toggle-visibility"
             onClick={toggleApiKeyVisibility}
           >
-            {apiKeyVisible ? "隐藏" : "显示"}
+            {apiKeyVisible ? "Hide" : "Show"}
           </button>
         </div>
         <p className="help-text">
-          如果您不提供API密钥，将使用系统默认密钥。
+          If you don't provide an API key, the system default will be used.
         </p>
       </div>
       
       <div className="current-settings">
-        <h4>当前设置</h4>
+        <h4>Current Settings</h4>
         <p>
-          提供商: <strong>{preferredProvider ? llmProviders.find(p => p.id === preferredProvider)?.name || preferredProvider : '默认'}</strong>
+          Provider: <strong>{preferredProvider ? llmProviders.find(p => p.id === preferredProvider)?.name || preferredProvider : 'Default'}</strong>
         </p>
         <p>
-          模型: <strong>{preferredModel || '默认'}</strong>
+          Model: <strong>{preferredModel || 'Default'}</strong>
         </p>
       </div>
       
@@ -176,17 +176,17 @@ const LLMProviderSelector = () => {
           onClick={handleApply}
           disabled={updating || llmProvidersLoading}
         >
-          {updating ? '正在更新...' : '应用设置'}
+          {updating ? 'Updating...' : 'Apply Settings'}
         </button>
       </div>
       
       {message && (
-        <div className={`message ${message.includes('错误') ? 'error' : 'success'}`}>
+        <div className={`message ${message.includes('Error') ? 'error' : 'success'}`}>
           {message}
         </div>
       )}
       
-      {llmProvidersLoading && <div className="loading">正在加载提供商...</div>}
+      {llmProvidersLoading && <div className="loading">Loading providers...</div>}
     </div>
   );
 };

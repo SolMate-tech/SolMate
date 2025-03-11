@@ -1,8 +1,8 @@
-# SolMate Project Summary
+# Solmate Project Summary
 
 ## Project Overview
 
-SolMate is a comprehensive AI-powered trading and analytics platform exclusively for Solana that emphasizes completely natural conversational interaction, advanced risk analysis, educational components, and robust trading tools - all while maintaining user privacy and fostering community growth.
+Solmate is a comprehensive AI-powered trading and analytics platform exclusively for Solana that emphasizes completely natural conversational interaction, advanced risk analysis, educational components, and robust trading tools - all while maintaining user privacy and fostering community growth.
 
 ## Key Features
 
@@ -112,13 +112,14 @@ SolMate is a comprehensive AI-powered trading and analytics platform exclusively
 
 ## Current Status
 
-SolMate is currently in the early development stage (Phase 1). We have established the basic project structure and are working on the core components of the platform.
+Solmate is currently in the early development stage (Phase 1). We have established the basic project structure and are working on the core components of the platform.
 
 ## Team
 
-SolMate is being developed by a team of experienced developers, designers, and Solana ecosystem experts. The team is committed to creating a high-quality product that meets the needs of Solana traders and enthusiasts.
+Solmate is being developed by a team of experienced developers, designers, and Solana ecosystem experts. The team is committed to creating a high-quality product that meets the needs of Solana traders and enthusiasts.
 
 ## Contact
 
 - Website: [sol-mate.online](https://sol-mate.online)
+- Twitter: [SolMate_AI_](https://x.com/SolMate_AI_)
 - GitHub: [SolMate-tech/SolMate](https://github.com/SolMate-tech/SolMate)
