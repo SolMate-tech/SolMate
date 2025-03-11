@@ -21,7 +21,38 @@ Key differentiation points:
 - **Real-time streaming responses** with typewriter effect UI
 
 <div align="center">
-  <img src="assets/logos/solmate_logo.svg" alt="Solmate Dashboard" width="800">
+
+```mermaid
+graph TD
+    User((User)) --> |Natural Language| SolmateUI[Solmate Interface]
+    
+    subgraph "Solmate Platform"
+        SolmateUI --> ConvEngine[Conversational Engine]
+        ConvEngine --> |Query Processing| LLMsystem[Multi-Provider LLM System]
+        ConvEngine --> |Analysis Request| Analytics[Analytics Engine]
+        
+        Analytics --> |Token Data| TokenRisk[Risk Scoring]
+        Analytics --> |Market Data| MarketTrends[Market Trends]
+        Analytics --> |Strategy| StrategyBuilder[Strategy Builder]
+        
+        TokenRisk --> Response[Personalized Response]
+        MarketTrends --> Response
+        StrategyBuilder --> Response
+        LLMsystem --> Response
+        
+        Response --> |Streaming SSE| SolmateUI
+    end
+    
+    subgraph "Solana Ecosystem"
+        TokenRisk --> |On-chain Data| SolanaChain[(Solana Blockchain)]
+        MarketTrends --> |DEX Data| Jupiter[Jupiter DEX]
+        StrategyBuilder --> SolanaChain
+    end
+    
+    User --> |Wallet Connection| Auth[Authentication]
+    Auth --> SolmateUI
+```
+
 </div>
 
 ## 🛠️ Tech Stack
